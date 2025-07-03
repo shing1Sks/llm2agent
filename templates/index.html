@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Mini Agentic Bot</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            max-width: 600px;
+            margin: auto;
+            padding: 2rem;
+        }
+
+        .chatbox {
+            border: 1px solid #ccc;
+            padding: 1rem;
+            height: 400px;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+        }
+
+        .user {
+            color: blue;
+            margin-bottom: 0.5rem;
+        }
+
+        .agent {
+            color: green;
+            margin-bottom: 0.5rem;
+        }
+
+        .meta {
+            font-size: 0.8em;
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>🧠 Mini Agentic Bot</h2>
+    <div class="chatbox" id="chatbox"></div>
+    <input type="text" id="input" placeholder="Type your message..." style="width: 80%;">
+    <button onclick="sendMessage()">Send</button>
+
+    <script>
+        function appendMessage(role, text) {
+            const box = document.getElementById("chatbox");
+            const div = document.createElement("div");
+            div.className = role;
+            div.innerText = role === 'user' ? `You: ${text}` : `Agent: ${text}`;
+            box.appendChild(div);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById("input");
+            const msg = input.value;
+            if (!msg) return;
+
+            appendMessage("user", msg);
+            input.value = "";
+
+            const res = await fetch("/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: msg })
+            });
+
+            const data = await res.json();
+            appendMessage("agent", `${data.response} \n\n(${data.flag} - ${data.objective})`);
+        }
+    </script>
+</body>
+
+</html>
