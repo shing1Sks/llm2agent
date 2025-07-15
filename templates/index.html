@@ -38,6 +38,15 @@
 
 <body>
     <h2>🧠 Mini Agentic Bot</h2>
+    <div style="margin-bottom: 1rem;">
+        <label>
+            <input type="radio" name="mode" value="agent" checked> Agent Mode
+        </label>
+        <label style="margin-left: 1rem;">
+            <input type="radio" name="mode" value="basic"> Basic Mode
+        </label>
+    </div>
+
     <div class="chatbox" id="chatbox"></div>
     <input type="text" id="input" placeholder="Type your message..." style="width: 80%;">
     <button onclick="sendMessage()">Send</button>
@@ -53,22 +62,29 @@
         }
 
         async function sendMessage() {
-            const input = document.getElementById("input");
-            const msg = input.value;
-            if (!msg) return;
+                const input = document.getElementById("input");
+                const msg = input.value;
+                if (!msg) return;
 
-            appendMessage("user", msg);
-            input.value = "";
+                appendMessage("user", msg);
+                input.value = "";
 
-            const res = await fetch("/chat", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message: msg })
-            });
+                const mode = document.querySelector('input[name="mode"]:checked').value;
+                const endpoint = mode === "agent" ? "/chat" : "/basic-chat";
 
-            const data = await res.json();
-            appendMessage("agent", `${data.response} \n\n(${data.flag} - ${data.objective})`);
-        }
+                const res = await fetch(endpoint, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: msg })
+                });
+
+                const data = await res.json();
+                const meta = mode === "agent"
+                    ? `\n\n(${data.flag} - ${data.objective})`
+                    : "\n\n(Basic Response)";
+                appendMessage("agent", data.response + meta);
+            }
+
     </script>
 </body>
 
